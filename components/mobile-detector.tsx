@@ -2,32 +2,33 @@
 
 import { useEffect, useState } from "react";
 
+// Check if device is mobile using multiple methods
+const checkMobile = () => {
+  // Method 1: Check user agent
+  const userAgent = navigator.userAgent || navigator.vendor;
+  const mobileRegex = /(iPhone|iPod|iPad|Android|BlackBerry|Windows Phone)/i;
+
+  // Method 2: Check screen width
+  const isSmallScreen = window.innerWidth < 768;
+
+  // Method 3: Check touch support
+  const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+  return mobileRegex.test(userAgent) || (isSmallScreen && hasTouch);
+};
+
 export default function MobileDetector({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean | null>(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return null;
+    return checkMobile();
+  });
 
   useEffect(() => {
-    // Check if device is mobile using multiple methods
-    const checkMobile = () => {
-      // Method 1: Check user agent
-      const userAgent = navigator.userAgent || navigator.vendor;
-      const mobileRegex =
-        /(iPhone|iPod|iPad|Android|BlackBerry|Windows Phone)/i;
-
-      // Method 2: Check screen width
-      const isSmallScreen = window.innerWidth < 768;
-
-      // Method 3: Check touch support
-      const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-      return mobileRegex.test(userAgent) || (isSmallScreen && hasTouch);
-    };
-
-    setIsMobile(checkMobile());
-
     // Listen for window resize
     const handleResize = () => {
       setIsMobile(checkMobile());
